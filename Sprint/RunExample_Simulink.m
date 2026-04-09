@@ -10,7 +10,7 @@
 % Cost for Summer Games 2025 ("30 s sprint"):  1.217274 (CircularCW)
 
 %% Setup
-clearvars;close all;clc;
+clearvars;close all;clc;bdclose all;
 addpath(genpath('..\WetiMatlabFunctions'))
 addpath(genpath('..\NrelMatlabFunctions'))
 
@@ -67,13 +67,20 @@ clear OpenFAST_ROSCO_LDP_FFP
 R.FlagLAC           = 1; % Enable LAC
 SimOutFBFF          = sim('OpenFAST_ROSCO_LDP_FFP.slx',[0,TMax]);
 movefile([SimulationName,'.SFunc.outb'],[SimulationName,'_FBFF.outb'])    % store results
+%% Run MPC Controller
+clear FAST_SFunc
+clear sfun_gain_scheduled_mpc
+clear OpenFAST_ROSCO_LDP_FFP_MMPC
+R.FlagLAC           = 1; % Enable LAC
+SimOutMPC           = sim('OpenFAST_ROSCO_LDP_FFP_MMPC.slx',[0,TMax]);
+movefile([SimulationName,'.SFunc.outb'],[SimulationName,'_MPC.outb'])
 
-%% Comparison
-% read in data
+%% Read Results
 FB              = ReadFASTbinaryIntoStruct([SimulationName,'_FB.outb']);
 FBFF            = ReadFASTbinaryIntoStruct([SimulationName,'_FBFF.outb']);
+MPC             = ReadFASTbinaryIntoStruct([SimulationName,'_MPC.outb']);
 
-% Plot 
+%% Plot 
 figure('Name','Simulation results')
 
 subplot(4,1,1);
@@ -87,6 +94,7 @@ subplot(4,1,2);
 hold on; grid on; box on
 plot(FB.Time,       FB.BldPitch1);
 plot(FBFF.Time,     FBFF.BldPitch1);
+plot(MPC.Time,     MPC.BldPitch1);
 ylabel({'BldPitch1'; '[deg]'});
 legend('feedback only','feedback-feedforward','Location','best')
 
@@ -94,19 +102,21 @@ subplot(4,1,3);
 hold on; grid on; box on
 plot(FB.Time,       FB.RotSpeed);
 plot(FBFF.Time,     FBFF.RotSpeed);
+plot(MPC.Time,      MPC.RotSpeed);
 ylabel({'RotSpeed';'[rpm]'});
 
 subplot(4,1,4);
 hold on; grid on; box on
 plot(FB.Time,       FB.TwrBsMyt/1e3);
 plot(FBFF.Time,     FBFF.TwrBsMyt/1e3);
+plot(MPC.Time,     MPC.TwrBsMyt/1e3);
 ylabel({'TwrBsMyt';'[MNm]'});
 
 xlabel('time [s]')
 linkaxes(findobj(gcf, 'Type', 'Axes'),'x');
 xlim([20 50])
 
-% display results
+%% display results
 RotSpeed_0  = 7.56;     % [rpm]
 TwrBsMyt_0  = 158.3e3;  % [kNm]
 t_Start     = 0;        % [s]
@@ -114,4 +124,17 @@ t_Start     = 0;        % [s]
 Cost = (max(abs(FBFF.RotSpeed(FBFF.Time>=t_Start)-RotSpeed_0))) / RotSpeed_0 ...
      + (max(abs(FBFF.TwrBsMyt(FBFF.Time>=t_Start)-TwrBsMyt_0))) / TwrBsMyt_0;
 
-fprintf('Cost for Summer Games 2024 ("30 s sprint"):  %f \n',Cost);
+fprintf('Cost for Summer Games 2025 ("30 s sprint"):  %f \n',Cost);
+
+
+Cost_MPC = (max(abs(MPC.RotSpeed(MPC.Time>=t_Start)-RotSpeed_0))) / RotSpeed_0 ...
+         + (max(abs(MPC.TwrBsMyt(MPC.Time>=t_Start)-TwrBsMyt_0))) / TwrBsMyt_0;
+
+fprintf('Cost for Summer Games 202 ("30 s sprint") Kurunji:  %f \n',Cost_MPC);
+if Cost_MPC < Cost
+    improvement = (Cost - Cost_MPC) / Cost * 100;
+    fprintf('MPC BEATS ROSCO+LAC by %.2f%%!\n\n', improvement);
+else
+    gap = (Cost_MPC - Cost) / Cost * 100;
+    fprintf('MPC is %.2f%% worse than ROSCO+LAC\n\n', gap);
+end
