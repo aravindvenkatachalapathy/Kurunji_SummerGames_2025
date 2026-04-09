@@ -1,15 +1,29 @@
-# LAC SummerGames 2025
-The LAC SummerGames 2025 were launched as follow-up to the successful LAC Summer Games 24 to encourage professionals and particularly students in the art of designing and deploying lidar data processing algorithms and lidar-assisted controllers. Participants will be given the opportunity to increase their knowledge in LAC and by that, the SummerGames will trigger creativity and motivate the development of new concepts.
+# LAC Summer Games 2025 — MPC Controller (Team Kurunji)
 
-All the necessary information regarding the three different disciplines and the general timeline can be found in the official document: (to be uploaded).
+A gain-scheduled Model Predictive Controller (MPC) developed for the LAC Summer Games 2025 sprint discipline, applied to the IEA 15 MW monopile wind turbine under an Extreme Coherent Gust with Direction Change (ECD, DLC 1.4) scenario.
 
-The best way to get started would be to familiarize yourself with the code of the given examples and reproduce the results presented in the official document.
+## Results
 
-This code is an extention of 
-https://github.com/MSCA-LIKE/Baseline-Lidar-assisted-Controller, which has been used in the research funded by LIKE -- Lidar Knowledge Europe, grant agreement No. 858358. 
+```
+Cost for Summer Games 2025 ("30 s sprint"):  0.722838   (ROSCO+LAC baseline)
+Cost for Summer Games 2025 ("30 s sprint"):  0.589773   (MPC — Team Kurunji)
+MPC BEATS ROSCO+LAC by 18.41%!
+```
 
-Please cite:
-- Guo, F., Schlipf, D., and Cheng, P. W.: Evaluation of lidar-assisted wind turbine control under various turbulence characteristics, Wind Energ. Sci., 8, 149-171, https://doi.org/10.5194/wes-8-149-2023, 2023. 
+## How to Run
 
-! License: MIT License
-! Copyright (c) 2022 Flensburg University of Applied Sciences, WETI
+1. Run `Sprint/GetMPC.m` to generate `MPC_Custom_All.mat` (requires OpenFAST `.lin` linearisation files in the Sprint folder).
+2. Run `Sprint/RunExample_Simulink.m` from the `Sprint/` directory.
+
+The script runs three simulations in order — feedback only (FB), feedback-feedforward (FBFF/ROSCO+LAC), and MPC — then prints the cost comparison.
+
+### Lidar configuration
+Set `LidarType` in `RunExample_Simulink.m`:
+- `'4BeamPulsed'` — 4-beam pulsed lidar
+- `'CircularCW'` — 50-beam continuous-wave circular scan
+
+## Dependencies
+- MATLAB + Simulink
+- OpenFAST S-function (`OpenFAST-Simulink_x64.dll`)
+- ROSCO controller
+- WetiMatlabFunctions / NrelMatlabFunctions (included in repo)
