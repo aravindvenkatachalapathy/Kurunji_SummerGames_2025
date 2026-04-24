@@ -19,3 +19,29 @@ MPC BEATS ROSCO+LAC by 18.41%!
 ### Lidar configuration
 Set `LidarType` in `RunExample_Simulink.m`:
 - `'4BeamPulsed'` — 4-beam pulsed lidar
+
+
+
+## Hurdles — 18 m/s Lidar Data Processor (LDP_v8)
+
+A bagged-LSTM + multi-gate Kalman ensemble with a variance-adaptive
+self-consistency correction, developed for the LAC Summer Games 2025
+"18 m/s Hurdles" discipline. 
+### How to Run
+
+From the `Hurdles/` directory:
+
+1. Ensure `Hurdles/models/` contains the ten bagged LSTM checkpoints
+   `lstm_4bp_bag_0.pt … lstm_4bp_bag_9.pt`.
+2. Run `python RunV8.py`.
+
+Per-seed CSVs and the combined `URef_18_REWS_v8_all.mat` are written to
+`Hurdles/estimates/`.
+
+### Results
+
+```
+Cost for Summer Games 2025 ("18 m/s hurdles"):  0.515998   (LDP_v3 baseline)
+Cost for Summer Games 2025 ("18 m/s hurdles"):  0.425749   (LDP_v8 — Team Kurunji)
+LDP_v8 BEATS LDP_v3 by 17.49%!
+```
