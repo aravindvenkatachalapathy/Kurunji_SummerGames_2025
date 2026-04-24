@@ -41,11 +41,11 @@ if isempty(MPC_DATA)
     data                  = load('MPC_Custom_All.mat');
     MPC_DATA              = data;
     MPC_DATA.step_count   = 0;
-    MPC_DATA.last_pitch   = 0.1085;           % rad
+    MPC_DATA.last_pitch   = 0.1276;           % rad
     MPC_DATA.decimation   = DECIMATION;
     MPC_DATA.x_hat        = zeros(6, 1);      % initial state estimate (deviation)
-    MPC_DATA.last_wind    = 12.0;             % m/s — held for observer between steps
-    MPC_DATA.last_u       = 0.1085;           % last pitch command [rad] — for observer
+    MPC_DATA.last_wind    = 12.5;             % m/s — held for observer between steps
+    MPC_DATA.last_u       = 0.1276;           % last pitch command [rad] — for observer
     block.OutputPort(1).Data = MPC_DATA.last_pitch;
     return;
 end

@@ -8,6 +8,7 @@
 % Result (slightly different to pure matlab version RunExample.m):       
 % Cost for Summer Games 2025 ("30 s sprint"):  0.722838 (4BeamPulsed)
 % Cost for Summer Games 2025 ("30 s sprint"):  1.217274 (CircularCW)
+% Cost for Kurunji team ("30 s sprint"): 0.589773 (4BeamPulsed)
 
 %% Setup
 clearvars;close all;clc;bdclose all;
@@ -72,7 +73,7 @@ clear FAST_SFunc
 clear sfun_gain_scheduled_mpc
 clear OpenFAST_ROSCO_LDP_FFP_MMPC
 R.FlagLAC           = 1; % Enable LAC
-SimOutMPC           = sim('OpenFAST_ROSCO_LDP_FFP_MMPC.slx',[0,TMax]);
+SimOutMPC           = sim('OpenFAST_ROSCO_LDP_FFP_MMPC_2021b.slx',[0,TMax]);
 movefile([SimulationName,'.SFunc.outb'],[SimulationName,'_MPC.outb'])
 
 %% Read Results
@@ -133,8 +134,34 @@ Cost_MPC = (max(abs(MPC.RotSpeed(MPC.Time>=t_Start)-RotSpeed_0))) / RotSpeed_0 .
 fprintf('Cost for Summer Games 202 ("30 s sprint") Kurunji:  %f \n',Cost_MPC);
 if Cost_MPC < Cost
     improvement = (Cost - Cost_MPC) / Cost * 100;
-    fprintf('MPC BEATS ROSCO+LAC by %.2f%%!\n\n', improvement);
+    fprintf('Kurunji MPC BEATS ROSCO+LAC by %.2f%%!\n\n', improvement);
 else
     gap = (Cost_MPC - Cost) / Cost * 100;
-    fprintf('MPC is %.2f%% worse than ROSCO+LAC\n\n', gap);
+    fprintf('Kurunji MPC is %.2f%% worse than ROSCO+LAC\n\n', gap);
 end
+
+%% Detailed Performance Metrics
+fprintf('=== DETAILED METRICS ===\n\n');
+
+fprintf('Rotor Speed:\n');
+fprintf('  Baseline max dev:  %.4f rpm (%.2f%%)\n', ...
+    max(abs(FB.RotSpeed - RotSpeed_0)), ...
+    max(abs(FB.RotSpeed - RotSpeed_0))/RotSpeed_0*100);
+fprintf('  ROSCO+LAC max dev: %.4f rpm (%.2f%%)\n', ...
+    max(abs(FBFF.RotSpeed - RotSpeed_0)), ...
+    max(abs(FBFF.RotSpeed - RotSpeed_0))/RotSpeed_0*100);
+fprintf('  MPC max dev:       %.4f rpm (%.2f%%)\n\n', ...
+    max(abs(MPC.RotSpeed(MPC.Time>=t_Start) - RotSpeed_0)), ...
+    max(abs(MPC.RotSpeed(MPC.Time>=t_Start) - RotSpeed_0))/RotSpeed_0*100);
+
+fprintf('Tower Moment:\n');
+fprintf('  Baseline max dev:  %.1f kN-m (%.2f%%)\n', ...
+    max(abs(FB.TwrBsMyt - TwrBsMyt_0)), ...
+    max(abs(FB.TwrBsMyt - TwrBsMyt_0))/TwrBsMyt_0*100);
+fprintf('  ROSCO+LAC max dev: %.1f kN-m (%.2f%%)\n', ...
+    max(abs(FBFF.TwrBsMyt - TwrBsMyt_0)), ...
+    max(abs(FBFF.TwrBsMyt - TwrBsMyt_0))/TwrBsMyt_0*100);
+fprintf('  MPC max dev:       %.1f kN-m (%.2f%%)\n\n', ...
+    max(abs(MPC.TwrBsMyt - TwrBsMyt_0)), ...
+    max(abs(MPC.TwrBsMyt - TwrBsMyt_0))/TwrBsMyt_0*100);
+
