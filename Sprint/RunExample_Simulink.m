@@ -73,7 +73,7 @@ clear FAST_SFunc
 clear sfun_gain_scheduled_mpc
 clear OpenFAST_ROSCO_LDP_FFP_MMPC
 R.FlagLAC           = 1; % Enable LAC
-SimOutMPC           = sim('OpenFAST_ROSCO_LDP_FFP_MMPC_2021b.slx',[0,TMax]);
+SimOutMPC           = sim('OpenFAST_ROSCO_LDP_FFP_MMPC.slx',[0,TMax]);
 movefile([SimulationName,'.SFunc.outb'],[SimulationName,'_MPC.outb'])
 
 %% Read Results
